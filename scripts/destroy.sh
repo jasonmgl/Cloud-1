@@ -13,14 +13,15 @@ fi
 VAULT_FILE="ansible/group_vars/all/vault.yaml"
 VAULT_PASS="ansible/.vault_password"
 
-set -euo pipefail
-
 export CLOUDFLARE_API_TOKEN=$(ansible-vault view "$VAULT_FILE" --vault-password-file "$VAULT_PASS" \
     | grep '^vault_dns_api_token:' \
     | sed 's/^vault_dns_api_token:[[:space:]]*//')
 
-mise exec terraform@latest -- terraform -chdir=terraform init
-mise exec terraform@latest -- terraform -chdir=terraform validate
-mise exec terraform@latest -- terraform -chdir=terraform plan
-mise exec terraform@latest -- terraform -chdir=terraform fmt -recursive
-mise exec terraform@latest -- terraform -chdir=terraform apply -auto-approve
+set -euo pipefail
+
+if command -v mise exec terraform@latest -- terraform >/dev/null 2>&1; then
+    mise exec terraform@latest -- terraform -chdir=terraform destroy -auto-approve
+fi
+
+printf '%s\n' "${GREEN}AWS infrastructure has been successfully destroyed${ENDCOLOR}"
+sleep 1

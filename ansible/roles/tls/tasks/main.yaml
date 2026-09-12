@@ -1,0 +1,65 @@
+---
+- name: Determine whether domain_name is an IP address
+  ansible.builtin.set_fact:
+    is_ip_address: "{{ domain_name is ansible.utils.ip_address }}"
+
+- name: Install certbot and the Cloudflare DNS plugin
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-dns-cloudflare
+    update_cache: yes
+  when: not is_ip_address
+
+- name: Render Cloudflare API credentials for certbot
+  no_log: true
+  ansible.builtin.template:
+    src: cloudflare.ini.j2
+    dest: /etc/letsencrypt/cloudflare.ini
+    mode: '0600'
+  when: not is_ip_address
+
+- name: Obtain/renew Let's Encrypt certificate via Cloudflare DNS-01
+  ansible.builtin.command:
+    cmd: >
+      certbot certonly --non-interactive --agree-tos -m {{ wp_admin_email }}
+      --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
+      --dns-cloudflare-propagation-seconds 30
+      --deploy-hook "docker exec nginx nginx -s reload || true"
+      -d {{ domain_name }}
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+  when: not is_ip_address
+
+- name: Install python3-cryptography for self-signed certificate generation
+  ansible.builtin.apt:
+    name: python3-cryptography
+  when: is_ip_address
+
+- name: Ensure self-signed certificate directory exists
+  ansible.builtin.file:
+    path: "/etc/letsencrypt/live/{{ domain_name }}"
+    state: directory
+    mode: '0755'
+  when: is_ip_address
+
+- name: Generate a self-signed private key
+  community.crypto.openssl_privatekey:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/privkey.pem"
+  when: is_ip_address
+
+- name: Generate a self-signed certificate signing request
+  community.crypto.openssl_csr:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/csr.pem"
+    privatekey_path: "/etc/letsencrypt/live/{{ domain_name }}/privkey.pem"
+    common_name: "{{ domain_name }}"
+    subject_alt_name: "IP:{{ domain_name }}"
+  when: is_ip_address
+
+- name: Generate a self-signed certificate
+  community.crypto.x509_certificate:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+    privatekey_path: "/etc/letsencrypt/live/{{ domain_name }}/privkey.pem"
+    csr_path: "/etc/letsencrypt/live/{{ domain_name }}/csr.pem"
+    provider: selfsigned
+  when: is_ip_address

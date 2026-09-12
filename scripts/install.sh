@@ -12,14 +12,22 @@ fi
 
 set -euo pipefail
 
-sudo apt update
-sudo apt install -y pipx curl unzip
+# sudo apt update
+# sudo apt install -y pipx curl unzip
+missing=()
+for bin in pipx curl unzip; do
+    command -v "$bin" >/dev/null 2>&1 || missing+=("$bin")
+done
+if [ "${#missing[@]}" -gt 0 ]; then
+    printf '%s\n' "${RED}Missing required tools: ${missing[*]}. Ask an admin to install them (no sudo available here).${ENDCOLOR}"
+    exit 1
+fi
 pipx ensurepath
 
 if ! command -v aws >/dev/null 2>&1;then
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
     unzip awscliv2.zip
-    sudo ./aws/install
+    ./aws/install --install-dir "$HOME/.local/aws-cli" --bin-dir "$HOME/.local/bin"
     rm -rf aws/ aws*.zip
 fi
 
@@ -27,6 +35,8 @@ if ! command -v ansible >/dev/null 2>&1; then
     pipx install --include-deps ansible
 fi
 ansible --version
+
+ansible-galaxy collection install -r ansible/requirements.yaml
 
 if ! command -v mise >/dev/null 2>&1; then
     curl https://mise.run | sh

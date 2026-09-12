@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 6.39.0, < 7.0.0"
+      version = "~> 6.39.0"
     }
 
     local = {
@@ -17,6 +17,11 @@ terraform {
       version = "~> 4.0"
     }
 
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
+
     ansible = {
       source  = "ansible/ansible"
       version = "~> 1.3"
@@ -27,3 +32,6 @@ terraform {
 provider "aws" {
   region = var.aws_region
 }
+
+# API token is set from ansible/group_vars/all/vault.yaml's vault_dns_api_token.
+provider "cloudflare" {}

@@ -1,0 +1,47 @@
+user www-data;
+
+events {
+	worker_connections	1024;
+}
+
+http {
+	include /etc/nginx/mime.types;
+
+	error_log /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+
+	server {	
+		listen 80 default_server;
+		server_name $DOMAIN_NAME;
+		deny all;
+	}
+
+	server {
+		listen	443 ssl default_server; #For IPv4
+		listen	[::]:443 ssl; #For IPv6
+		server_name $DOMAIN_NAME;
+
+		# SSL configuration
+		ssl_protocols		TLSv1.2 TLSv1.3;
+		ssl_certificate		/etc/letsencrypt/live/$DOMAIN_NAME/fullchain.pem;
+		ssl_certificate_key	/etc/letsencrypt/live/$DOMAIN_NAME/privkey.pem;
+
+		root  /var/www/html;
+		index index.php index.html;
+
+		location / {
+			try_files $uri $uri/ /index.php?$args;
+		}
+
+		# All php requets handling configuration
+		location ~ \.php$ {
+			fastcgi_split_path_info	^(.+\.php)(/.+)$;
+			fastcgi_pass	wordpress:9000;
+			fastcgi_index	index.php;
+			include			fastcgi_params;
+			fastcgi_param	SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_param	PATH_INFO $fastcgi_path_info;
+			fastcgi_param	HTTP_HOST $http_host;
+		}
+	}
+}

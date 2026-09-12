@@ -13,22 +13,23 @@ fi
 set -euo pipefail
 
 if command -v aws >/dev/null 2>&1; then
-    sudo rm /usr/local/bin/aws
-    sudo rm /usr/local/bin/aws_completer
-    sudo rm -rf /usr/local/aws-cli
+    rm -f "$HOME/.local/bin/aws"
+    rm -f "$HOME/.local/bin/aws_completer"
+    rm -rf "$HOME/.local/aws-cli"
 fi
 
-if command -v mise exec terraform@latest -- terraform >/dev/null 2>&1; then
-    mise exec terraform@latest -- terraform -chdir=terraform destroy -auto-approve
-fi
+# moved to scripts/destroy.sh
+# if command -v mise exec terraform@latest -- terraform >/dev/null 2>&1; then
+#     mise exec terraform@latest -- terraform -chdir=terraform destroy -auto-approve
+# fi
 
 if command -v ansible >/dev/null 2>&1; then
-    pipx uninstall ansible
+    (cd "$HOME" && pipx uninstall ansible) || true
 fi
 
-if command -v pipx >/dev/null 2>&1; then
-    sudo apt remove pipx -y
-fi
+# if command -v pipx >/dev/null 2>&1; then
+#     sudo apt remove pipx -y
+# fi
 
 if command -v mise -v >/dev/null 2>&1; then
     mise uninstall terraform -y --all

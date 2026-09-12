@@ -22,8 +22,6 @@ private_keys/
 *.token
 *.env.local
 
-vault.yml
-vault.yaml
 *.vault
 .vault_pass
 .vault_password
@@ -62,10 +60,12 @@ known_hosts
 .terraform*
 terraform.tfstate
 terraform.tfstate.*
-terraform.tfvars
 terraform.tfvars.json
 *.tfvars
 *.tfvars.json
+
+!terraform.tfvars
+# terraform.tfvars is committed on purpose: it holds non-secret values only in this project.
 
 crash.log
 crash.*.log
@@ -82,7 +82,7 @@ terraform.rc
 # In general, keep .terraform.lock.hcl committed.
 # Do NOT ignore it unless you have a specific reason.
 # .terraform.lock.hcl
-
+!.terraform.lock.hcl
 
 # ============================================================
 # Ansible
@@ -91,6 +91,8 @@ terraform.rc
 *.retry
 ansible.log
 ansible-debug.log
+
+domain.yaml
 
 # Ignore inventories if they contain IPs, users, private paths, or secrets
 inventory.ini
@@ -127,25 +129,6 @@ volumes/
 *.log
 logs/
 log/
-
-
-# ============================================================
-# Kubernetes / K3s / K3d / Kubectl
-# ============================================================
-
-kubeconfig
-*.kubeconfig
-.kube/
-k3s.yaml
-k3d-kubeconfig.yaml
-
-# Helm
-charts/*.tgz
-*.tgz
-helmfile.lock
-
-# Keep chart lock files only if you want reproducible Helm dependencies
-# Chart.lock
 
 
 # ============================================================
@@ -202,106 +185,6 @@ Desktop.ini
 .settings/
 
 *.code-workspace
-
-
-# ============================================================
-# Python
-# ============================================================
-
-__pycache__/
-*.py[cod]
-*$py.class
-
-.venv/
-venv/
-env/
-ENV/
-
-pip-log.txt
-pip-delete-this-directory.txt
-
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
-
-dist/
-build/
-*.egg-info/
-
-
-# ============================================================
-# Node.js / JavaScript / TypeScript
-# ============================================================
-
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-.npm/
-.yarn/
-.pnpm-store/
-
-dist/
-build/
-.next/
-.nuxt/
-.cache/
-.parcel-cache/
-
-coverage/
-
-
-# ============================================================
-# Go
-# ============================================================
-
-bin/
-*.test
-*.out
-
-
-# ============================================================
-# Java / Maven / Gradle
-# ============================================================
-
-target/
-.gradle/
-build/
-*.class
-*.jar
-*.war
-*.ear
-
-
-# ============================================================
-# C / C++ / 42 projects
-# ============================================================
-
-*.o
-*.a
-*.so
-*.dylib
-*.dll
-*.exe
-*.out
-
-a.out
-
-.dSYM/
-*.dSYM/
-
-compile_commands.json
-.cache/
-
-# 42 norm / generated files
-*.gcda
-*.gcno
-*.gcov
 
 
 # ============================================================

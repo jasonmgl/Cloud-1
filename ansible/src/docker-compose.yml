@@ -1,0 +1,64 @@
+networks:
+  inception:
+    driver: bridge # Create a private internal network using the bridge driver
+
+volumes:
+  mariadb:
+    name: mariadb
+    driver: local
+
+  wordpress:
+    name: wordpress
+    driver: local
+
+  nginx:
+    name: nginx
+    driver: local
+
+services:
+  mariadb:
+    image: inception-mariadb
+    container_name: mariadb
+    build: ./mariadb/.
+    env_file:
+      - .env
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception
+    expose:
+      - "3306"
+    restart: unless-stopped
+
+  wordpress:
+    image: inception-wordpress
+    container_name: wordpress
+    build: ./wordpress/.
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    restart: unless-stopped
+    depends_on:
+      - mariadb # Wordpress starts after mariadb
+
+  nginx:
+    image: inception-nginx
+    container_name: nginx
+    build: ./nginx/.
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+      - nginx:/var/log/nginx # Logs are stored in the host
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped

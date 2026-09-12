@@ -1,0 +1,22 @@
+---
+- name: Ensure project directory exists
+  ansible.builtin.file:
+    path: "{{ project_path }}/src/"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Copy source files to the remote server
+  ansible.builtin.copy:
+    src: ./src/
+    dest: "{{ project_path }}/src/"
+
+- name: Render .env file from template
+  no_log: true
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ project_path }}/src/.env"
+    mode: '0600'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"

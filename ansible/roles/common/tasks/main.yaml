@@ -1,0 +1,26 @@
+---
+- name: Update apt cache
+  ansible.builtin.command: apt-get update
+  changed_when: false
+
+- name: upgrade apt packages
+  ansible.builtin.apt:
+    upgrade: dist
+  environment:
+    NEEDRESTART_MODE: 'a'
+
+- name: Check if a reboot is required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Reboot if required
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+  when: reboot_required.stat.exists
+
+- name: Manage apt packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl

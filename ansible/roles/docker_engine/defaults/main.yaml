@@ -1,0 +1,2 @@
+---
+docker_keyring_path: /etc/apt/keyrings/docker.asc

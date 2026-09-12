@@ -1,0 +1,24 @@
+---
+- name: Prerequisites
+  hosts: web
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for_connection:
+        delay: 5
+        timeout: 120
+    - name: Gather facts
+      ansible.builtin.setup:
+  roles:
+    - common
+    - docker_engine
+    - security
+
+- name: Deploy Inception Project
+  hosts: web
+  become: true
+  roles:
+    - sync_project
+    - tls
+    - start

@@ -1,0 +1,23 @@
+---
+domain_name: "{{ ansible_host }}"
+project_name: inception
+project_path: /opt/inception
+
+# MYSQL SETUP
+sql_database: cloud1_database
+sql_password: "{{ vault_sql_password }}"
+sql_user: sql_username
+sql_root_password: "{{ vault_sql_root_password }}"
+
+# WORDPRESS SETUP
+site_title: "Cloud1"
+wp_admin: admin
+wp_admin_email: admin@ysengoku.dev
+wp_admin_password: "{{ vault_wp_admin_password }}"
+wp_user: user
+wp_user_email: user@ysengoku.dev
+wp_user_password: "{{ vault_wp_user_password }}"
+wp_theme_name: primarium
+
+# DNS
+dns_api_token: "{{ vault_dns_api_token }}"

@@ -81,6 +81,10 @@ resource "aws_instance" "instances" {
     Group = each.value.group_name
     Name  = each.value.name
   }
+
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 resource "aws_eip" "instances" {
@@ -156,14 +160,14 @@ resource "local_file" "ansible_inventory" {
     [
       "[aws]\n${join("\n", [
         for key, instance in aws_instance.instances :
-        "${local.instances[key].name} ansible_host=${aws_eip.instances[key].public_ip} ansible_ssh_private_key_file=${local.ansible_ssh_private_key_file} ansible_ssh_user=${var.ansible_ssh_user}"
+        "${local.instances[key].name} ansible_host=${aws_eip.instances[key].public_ip} ansible_ssh_private_key_file=${local.ansible_ssh_private_key_file} ansible_ssh_user=${var.ansible_ssh_user}${key == var.dns_target_instance && var.domain_name != "" ? " domain_name=${var.domain_name}" : ""}"
       ])}"
     ],
     [
       for group_key, group in local.instance_groups :
       "[${group_key}]\n${join("\n", [
         for instance_key, instance in group.instances :
-        "${instance.name} ansible_host=${aws_eip.instances["${group_key}.${instance_key}"].public_ip} ansible_ssh_private_key_file=${local.ansible_ssh_private_key_file} ansible_ssh_user=${var.ansible_ssh_user}"
+        "${instance.name} ansible_host=${aws_eip.instances["${group_key}.${instance_key}"].public_ip} ansible_ssh_private_key_file=${local.ansible_ssh_private_key_file} ansible_ssh_user=${var.ansible_ssh_user}${"${group_key}.${instance_key}" == var.dns_target_instance && var.domain_name != "" ? " domain_name=${var.domain_name}" : ""}"
       ])}"
     ]
   ))

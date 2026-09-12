@@ -1,6 +1,0 @@
----
-- name: Deploy Docker stack
-  hosts: web
-  become: true
-  roles:
-    - docker

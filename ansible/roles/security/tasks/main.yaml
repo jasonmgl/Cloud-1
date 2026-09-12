@@ -1,0 +1,28 @@
+---
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+
+- name: Set default ufw policy to deny incoming
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set default ufw policy to allow outgoing
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow SSH, HTTP, and HTTPS through ufw
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "22"
+    - "80"
+    - "443"
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled

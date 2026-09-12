@@ -14,5 +14,5 @@ set -euo pipefail
 
 ANSIBLE_CONFIG=ansible/ansible.cfg ansible-inventory -i ansible/inventory.ini --list --yaml > ansible/inventory.yaml
 
-ANSIBLE_ROLES_PATH=ansible/roles ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/playbook.yml --syntax-check
-ANSIBLE_ROLES_PATH=ansible/roles ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/playbook.yml
+ANSIBLE_ROLES_PATH=ansible/roles ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/playbook.yaml --syntax-check
+ANSIBLE_ROLES_PATH=ansible/roles ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/playbook.yaml

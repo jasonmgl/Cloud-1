@@ -1,0 +1,13 @@
+---
+- name: Build and start Docker containers
+  community.docker.docker_compose_v2:
+    project_src: "{{ project_path }}/src/"
+    project_name: "{{ project_name }}"
+    build: always
+    ignore_build_events: true
+    state: present
+  environment:
+    BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
+
+  # If state=present, ignore_build_events=true and build=always, a rebuild that does not trigger a container restart no longer results in changed=true.
+  # Disable BuildKit attestations (provenance/SBOM): they embed build-time metadata, so an identical rebuild still gets a new image digest, and Compose would recreate the containers needlessly.

@@ -77,3 +77,21 @@ variable "inventory_ansible_path" {
   type        = string
   default     = null
 }
+
+variable "domain_name" {
+  description = "Domain name to point at the instance via Cloudflare DNS. Empty to skip DNS and use the bare IP. Can be a subdomain of cloudflare_zone_name."
+  type        = string
+  default     = ""
+}
+
+variable "cloudflare_zone_name" {
+  description = "Root domain registered as a Cloudflare zone (e.g. \"example.com\"), used to look up the zone domain_name's DNS record goes into. Required when domain_name is set."
+  type        = string
+  default     = ""
+}
+
+variable "dns_target_instance" {
+  description = "Which instance (group.instance key, e.g. \"web.1\") domain_name points at"
+  type        = string
+  default     = "web.1"
+}
